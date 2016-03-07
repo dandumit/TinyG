@@ -102,7 +102,6 @@ static void _exec_spindle_control(float *value, float *flag)
 	uint8_t spindle_mode = (uint8_t)value[0];
 	cm_set_spindle_mode(MODEL, spindle_mode);
 
- #ifdef __AVR
 	//if (spindle_mode == SPINDLE_CW) { gpio_set_bit_on(SPINDLE_BIT); gpio_set_bit_off(SPINDLE_DIR); 	} 
 	if (spindle_mode == SPINDLE_CCW) { //M8
 		gpio_set_bit_on(SPINDLE_BIT);
@@ -110,19 +109,6 @@ static void _exec_spindle_control(float *value, float *flag)
 	} else {
 		gpio_set_bit_off(SPINDLE_BIT);	// failsafe: any error causes stop
 	}
-#endif // __AVR
-#ifdef __ARM
-	if (spindle_mode == SPINDLE_CW) {
-		spindle_enable_pin.set();
-		spindle_dir_pin.clear();
-	} else if (spindle_mode == SPINDLE_CCW) {
-		spindle_enable_pin.set();
-		spindle_dir_pin.set();
-	} else {
-		spindle_enable_pin.clear();	// failsafe: any error causes stop
-	}
-#endif // __ARM
-
 	// PWM spindle control
 	pwm_set_duty(PWM_1, cm_get_spindle_pwm(spindle_mode) );
 }
@@ -140,7 +126,7 @@ static void _exec_pneumatic_z_control(float *value, float *flag)
 	cm.gm.pneumatic_z = (uint8_t)value[0];
 	if (cm.gm.pneumatic_z == true) {
 		gpio_set_bit_on(SPINDLE_DIR);	// if
-		} else {
+	} else {
 		gpio_set_bit_off(SPINDLE_DIR);		// else
 	}
 
