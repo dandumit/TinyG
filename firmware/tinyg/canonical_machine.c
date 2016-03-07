@@ -122,6 +122,7 @@ static void _exec_change_tool(float *value, float *flag);
 static void _exec_select_tool(float *value, float *flag);
 static void _exec_mist_coolant_control(float *value, float *flag);
 static void _exec_flood_coolant_control(float *value, float *flag);
+
 static void _exec_absolute_origin(float *value, float *flag);
 static void _exec_program_finalize(float *value, float *flag);
 
@@ -1033,7 +1034,9 @@ static void _exec_mist_coolant_control(float *value, float *flag)
 #endif // __ARM
 }
 
-stat_t cm_flood_coolant_control(uint8_t flood_coolant)
+
+
+stat_t cm_flood_coolant_control(uint8_t flood_coolant)   //M8 M9
 {
 	float value[AXES] = { (float)flood_coolant,0,0,0,0,0 };
 	mp_queue_command(_exec_flood_coolant_control, value, value);
@@ -1043,25 +1046,23 @@ static void _exec_flood_coolant_control(float *value, float *flag)
 {
 	cm.gm.flood_coolant = (uint8_t)value[0];
 
-#ifdef __AVR
+	#ifdef __AVR
 	if (cm.gm.flood_coolant == true) {
 		gpio_set_bit_on(FLOOD_COOLANT_BIT);
-	} else {
+		} else {
 		gpio_set_bit_off(FLOOD_COOLANT_BIT);
-		float vect[] = { 0,0,0,0,0,0 };				// turn off mist coolant
-		_exec_mist_coolant_control(vect, vect);		// M9 special function
 	}
-#endif // __AVR
+	#endif // __AVR
 
-#ifdef __ARM
+	#ifdef __ARM
 	if (cm.gm.flood_coolant == true) {
 		coolant_enable_pin.set();
-	} else {
+		} else {
 		coolant_enable_pin.clear();
 		float vect[] = { 0,0,0,0,0,0 };				// turn off mist coolant
 		_exec_mist_coolant_control(vect, vect);		// M9 special function
 	}
-#endif // __ARM
+	#endif // __ARM
 }
 
 /*

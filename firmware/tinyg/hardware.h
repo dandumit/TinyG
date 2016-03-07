@@ -189,7 +189,8 @@ enum cfgPortBits {			// motor control port bit positions
 #define SPINDLE_PWM_LED		2
 #define COOLANT_LED			3
 
-#define INDICATOR_LED		SPINDLE_DIR_LED	// can use the spindle direction as an indicator LED
+//#define INDICATOR_LED		SPINDLE_DIR_LED	// can use the spindle direction as an indicator LED
+#define INDICATOR_LED		SPINDLE_PWM_LED	// can use the spindle direction as an indicator LED
 
 /* Timer assignments - see specific modules for details) */
 

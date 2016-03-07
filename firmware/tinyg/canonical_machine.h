@@ -104,8 +104,10 @@ typedef struct GCodeState {				// Gcode model state - used by model, planning an
 	uint8_t tool;						// M6 tool change - moves "tool_select" to "tool"
 	uint8_t tool_select;				// T value - T sets this value
 	uint8_t mist_coolant;				// TRUE = mist on (M7), FALSE = off (M9)
+	
 	uint8_t flood_coolant;				// TRUE = flood on (M8), FALSE = off (M9)
 	uint8_t spindle_mode;				// 0=OFF (M5), 1=CW (M3), 2=CCW (M4)
+	uint8_t pneumatic_z;				// M10 M11
 
 } GCodeState_t;
 
@@ -171,8 +173,12 @@ typedef struct GCodeInput {				// Gcode model inputs - meaning depends on contex
 	uint8_t tool_change;				// M6 tool change flag - moves "tool_select" to "tool"
 	uint8_t mist_coolant;				// TRUE = mist on (M7), FALSE = off (M9)
 	uint8_t flood_coolant;				// TRUE = flood on (M8), FALSE = off (M9)
-
+	uint8_t pneumatic_z;				//M10 , M11
 	uint8_t spindle_mode;				// 0=OFF (M5), 1=CW (M3), 2=CCW (M4)
+	
+
+	
+	
 	float spindle_speed;				// in RPM
 	float spindle_override_factor;		// 1.0000 x S spindle speed. Go up or down from there
 	uint8_t	spindle_override_enable;	// TRUE = override enabled
@@ -420,7 +426,7 @@ enum cmModalGroup {						// Used for detecting gcode errors. See NIST section 3.
 	MODAL_GROUP_M6,						// {M6}					tool change
 	MODAL_GROUP_M7,						// {M3,M4,M5}			spindle turning
 	MODAL_GROUP_M8,						// {M7,M8,M9}			coolant (M7 & M8 may be active together)
-	MODAL_GROUP_M9						// {M48,M49}			speed/feed override switches
+	MODAL_GROUP_M9						// {M10,M11,M48,M49}			speed/feed override switches
 };
 #define MODAL_GROUP_COUNT (MODAL_GROUP_M9+1)
 // Note 1: Our G0 omits G4,G30,G53,G92.1,G92.2,G92.3 as these have no axis components to error check
@@ -615,6 +621,9 @@ stat_t cm_change_tool(uint8_t tool);							// M6
 // Miscellaneous Functions (4.3.9)
 stat_t cm_mist_coolant_control(uint8_t mist_coolant); 			// M7
 stat_t cm_flood_coolant_control(uint8_t flood_coolant);			// M8, M9
+
+
+
 
 stat_t cm_override_enables(uint8_t flag); 						// M48, M49
 stat_t cm_feed_rate_override_enable(uint8_t flag); 				// M50

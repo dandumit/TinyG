@@ -354,18 +354,33 @@ static stat_t _parse_gcode_block(char_t *buf)
 						SET_MODAL (MODAL_GROUP_M4, program_flow, PROGRAM_STOP);
 				case 2: case 30:
 						SET_MODAL (MODAL_GROUP_M4, program_flow, PROGRAM_END);
-				case 3: SET_MODAL (MODAL_GROUP_M7, spindle_mode, SPINDLE_CW);
+				//case 3: SET_MODAL (MODAL_GROUP_M7, spindle_mode, SPINDLE_CW);
 				case 4: SET_MODAL (MODAL_GROUP_M7, spindle_mode, SPINDLE_CCW);
 				case 5: SET_MODAL (MODAL_GROUP_M7, spindle_mode, SPINDLE_OFF);
+				
 				case 6: SET_NON_MODAL (tool_change, true);
-				case 7: SET_MODAL (MODAL_GROUP_M8, mist_coolant, true);
+				//case 7: SET_MODAL (MODAL_GROUP_M8, mist_coolant, true);
 				case 8: SET_MODAL (MODAL_GROUP_M8, flood_coolant, true);
 				case 9: SET_MODAL (MODAL_GROUP_M8, flood_coolant, false);
+				
+				case 10: SET_MODAL (MODAL_GROUP_M7, pneumatic_z, true);
+				case 11: SET_MODAL (MODAL_GROUP_M7, pneumatic_z, false);
+				
 				case 48: SET_MODAL (MODAL_GROUP_M9, override_enables, true);
 				case 49: SET_MODAL (MODAL_GROUP_M9, override_enables, false);
 				case 50: SET_MODAL (MODAL_GROUP_M9, feed_rate_override_enable, true); // conditionally true
 				case 51: SET_MODAL (MODAL_GROUP_M9, spindle_override_enable, true);	  // conditionally true
 				default: status = STAT_MCODE_COMMAND_UNSUPPORTED;
+				// implemented on tinyg The following Gcodes are currently sent by the driver:
+				//
+				//				Function	Gcode
+				//				Home	G92 X Y Z A
+				//				Move	G1 X Y Z A F
+				//				Pick			M4			Place			M5 
+				//				Actuator On		M8			Actuator Off	M9
+				//				ZDown			M10			Zup				M11
+				// Spindle PA5  Coolant PE5   Spindle Dir PF5
+				
 			}
 			break;
 
@@ -449,9 +464,13 @@ static stat_t _execute_gcode_block()
 	EXEC_FUNC(cm_spindle_override_factor, spindle_override_factor);
 	EXEC_FUNC(cm_select_tool, tool_select);					// tool_select is where it's written
 	EXEC_FUNC(cm_change_tool, tool_change);
+	
+	EXEC_FUNC(cm_pneumatic_z_control, pneumatic_z);
 	EXEC_FUNC(cm_spindle_control, spindle_mode); 			// spindle on or off
-	EXEC_FUNC(cm_mist_coolant_control, mist_coolant);
+	//EXEC_FUNC(cm_mist_coolant_control, mist_coolant);
 	EXEC_FUNC(cm_flood_coolant_control, flood_coolant);		// also disables mist coolant if OFF
+	
+
 	EXEC_FUNC(cm_feed_rate_override_enable, feed_rate_override_enable);
 	EXEC_FUNC(cm_traverse_override_enable, traverse_override_enable);
 	EXEC_FUNC(cm_spindle_override_enable, spindle_override_enable);

@@ -38,6 +38,7 @@ extern "C"{
 #endif
 
 static void _exec_spindle_control(float *value, float *flag);
+static void _exec_pneumatic_z_control(float *value, float *flag);
 static void _exec_spindle_speed(float *value, float *flag);
 
 /*
@@ -102,12 +103,10 @@ static void _exec_spindle_control(float *value, float *flag)
 	cm_set_spindle_mode(MODEL, spindle_mode);
 
  #ifdef __AVR
-	if (spindle_mode == SPINDLE_CW) {
+	//if (spindle_mode == SPINDLE_CW) { gpio_set_bit_on(SPINDLE_BIT); gpio_set_bit_off(SPINDLE_DIR); 	} 
+	if (spindle_mode == SPINDLE_CCW) { //M8
 		gpio_set_bit_on(SPINDLE_BIT);
-		gpio_set_bit_off(SPINDLE_DIR);
-	} else if (spindle_mode == SPINDLE_CCW) {
-		gpio_set_bit_on(SPINDLE_BIT);
-		gpio_set_bit_on(SPINDLE_DIR);
+		//gpio_set_bit_on(SPINDLE_DIR);
 	} else {
 		gpio_set_bit_off(SPINDLE_BIT);	// failsafe: any error causes stop
 	}
@@ -127,6 +126,28 @@ static void _exec_spindle_control(float *value, float *flag)
 	// PWM spindle control
 	pwm_set_duty(PWM_1, cm_get_spindle_pwm(spindle_mode) );
 }
+
+//cm_pneumatic_z_control
+stat_t cm_pneumatic_z_control(uint8_t pneumatic_z)
+{
+	float value[AXES] = { (float)pneumatic_z,0,0,0,0,0 };
+	mp_queue_command(_exec_pneumatic_z_control, value, value);
+	return (STAT_OK);
+}
+
+static void _exec_pneumatic_z_control(float *value, float *flag)
+{
+	cm.gm.pneumatic_z = (uint8_t)value[0];
+	if (cm.gm.pneumatic_z == true) {
+		gpio_set_bit_on(SPINDLE_DIR);	// if
+		} else {
+		gpio_set_bit_off(SPINDLE_DIR);		// else
+	}
+
+}
+
+
+
 
 /*
  * cm_set_spindle_speed() 	- queue the S parameter to the planner buffer
